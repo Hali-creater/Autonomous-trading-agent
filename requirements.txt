@@ -1,11 +1,33 @@
-requirements_path = os.path.join(project_name, "requirements.txt")
 with open(requirements_path, "w") as f:
+    # Data handling
     f.write("pandas\n")
     f.write("numpy\n")
+
+    # API requests
     f.write("requests\n")
     f.write("python-dotenv\n")
-    f.write("streamlit\n") # Choosing Streamlit for the dashboard
-    # f.write("fastapi\n") # Uncomment if choosing FastAPI
-    # f.write("uvicorn\n") # Uncomment if choosing FastAPI and Uvicorn
-    f.write("scikit-learn\n") # General-purpose library for potential future use
-    f.write("ta\n") # Technical analysis library
+
+    # Dashboard/UI
+    f.write("streamlit\n")  # or use FastAPI + Uvicorn if you prefer a web API
+    # f.write("fastapi\n")
+    # f.write("uvicorn\n")
+
+    # Machine Learning / Analysis
+    f.write("scikit-learn\n")
+    f.write("ta\n")  # Technical Analysis library
+
+    # Broker integrations
+    f.write("alpaca-trade-api\n")
+    f.write("ib_insync\n")  # Interactive Brokers
+    f.write("binance-connector\n")
+    f.write("oandapyV20\n")
+
+    # Plotting and Visualization
+    f.write("matplotlib\n")
+    f.write("plotly\n")
+
+    # Optional: Real-time websocket streaming
+    f.write("websocket-client\n")
+
+    # Optional: Logging & Utilities
+    f.write("loguru\n")
