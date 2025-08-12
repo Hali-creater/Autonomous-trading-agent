@@ -1,0 +1,11 @@
+requirements_path = os.path.join(project_name, "requirements.txt")
+with open(requirements_path, "w") as f:
+    f.write("pandas\n")
+    f.write("numpy\n")
+    f.write("requests\n")
+    f.write("python-dotenv\n")
+    f.write("streamlit\n") # Choosing Streamlit for the dashboard
+    # f.write("fastapi\n") # Uncomment if choosing FastAPI
+    # f.write("uvicorn\n") # Uncomment if choosing FastAPI and Uvicorn
+    f.write("scikit-learn\n") # General-purpose library for potential future use
+    f.write("ta\n") # Technical analysis library
