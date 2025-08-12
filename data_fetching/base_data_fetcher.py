@@ -1,0 +1,11 @@
+base_fetcher_path = os.path.join(data_fetching_dir, "base_data_fetcher.py")
+with open(base_fetcher_path, "w") as f:
+    f.write("import pandas as pd\n")
+    f.write("from abc import ABC, abstractmethod\n\n")
+    f.write("class BaseDataFetcher(ABC):\n")
+    f.write("    @abstractmethod\n")
+    f.write("    def fetch_historical_data(self, symbol: str, timeframe: str, start_date: str, end_date: str) -> pd.DataFrame:\n")
+    f.write("        pass\n\n")
+    f.write("    @abstractmethod\n")
+    f.write("    def fetch_realtime_data(self, symbol: str):\n")
+    f.write("        pass\n")
