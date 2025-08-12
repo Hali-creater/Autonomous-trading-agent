@@ -1,0 +1,141 @@
+alpaca_executor_path = os.path.join(execution_dir, "alpaca_executor.py")
+with open(alpaca_executor_path, "w") as f:
+    f.write("from .base_executor import BaseExecutor\n")
+    f.write("from alpaca_trade_api.rest import REST\n")
+    f.write("import os\n")
+    f.write("from dotenv import load_dotenv\n")
+    f.write("import logging\n")
+    f.write("import pandas as pd\n\n")
+
+    f.write("load_dotenv()\n\n")
+
+    # 5. Define concrete class AlpacaExecutor inheriting from BaseExecutor
+    f.write("class AlpacaExecutor(BaseExecutor):\n")
+    # 6. Implement __init__ method
+    f.write("    def __init__(self):\n")
+    f.write("        self.api_key = os.getenv('ALPACA_API_KEY_ID')\n")
+    f.write("        self.api_secret = os.getenv('ALPACA_API_SECRET_KEY')\n")
+    f.write("        self.base_url = os.getenv('ALPACA_BASE_URL', 'https://paper-api.alpaca.markets')\n")
+    f.write("        if not self.api_key or not self.api_secret:\n")
+    f.write("            raise ValueError('Alpaca API key and secret must be set in environment variables.')\n")
+    f.write("        try:\n")
+    f.write("            self.api = REST(self.api_key, self.api_secret, self.base_url)\n")
+    f.write("            logging.info('AlpacaExecutor initialized successfully.')\n")
+    f.write("        except Exception as e:\n")
+    f.write("            logging.error(f'Failed to initialize Alpaca REST API: {e}')\n")
+    f.write("            raise\n\n")
+
+
+    # 7. Implement place_order method
+    f.write("    def place_order(self, symbol: str, order_type: str, quantity: float, price: float = None, stop_loss: float = None, take_profit: float = None):\n")
+    f.write("        try:\n")
+    f.write("            # Basic validation\n")
+    f.write("            if quantity <= 0:\n")
+    f.write("                logging.warning(f'Invalid quantity {quantity} for order on {symbol}.')\n")
+    f.write("                return None\n")
+
+    f.write("            order_params = {\n")
+    f.write("                'symbol': symbol,\n")
+    f.write("                'qty': quantity,\n")
+    f.write("                'type': order_type.lower(),\n")
+    f.write("                'side': 'buy' if quantity > 0 else 'sell', # Assuming positive quantity is buy, negative is sell (adjust as per strategy/broker API)\n")
+    f.write("                'time_in_force': 'gtc' # Good 'Til Cancelled\n")
+    f.write("            }\n\n")
+
+    f.write("            if order_type.lower() == 'limit' and price is not None:\n")
+    f.write("                 order_params['limit_price'] = price\n")
+    f.write("            elif order_type.lower() == 'market' and price is not None:\n")
+    f.write("                 logging.warning('Price specified for market order, ignoring.')\n")
+    f.write("            elif order_type.lower() == 'limit' and price is None:\n")
+    f.write("                 logging.error('Limit order requires a price.')\n")
+    f.write("                 return None\n\n")
+
+
+    f.write("            # Add stop loss and take profit if provided (as OTO or OCO - depends on broker support)\n")
+    f.write("            # Alpaca supports bracket orders (OTOCO: One Triggers OCO (One Cancels Other))\n")
+    f.write("            if stop_loss is not None or take_profit is not None:\n")
+    f.write("                 order_params['order_class'] = 'bracket'\n")
+    f.write("                 if take_profit is not None:\n")
+    f.write("                      order_params['take_profit'] = {'limit_price': take_profit}\n")
+    f.write("                 if stop_loss is not None:\n")
+    f.write("                      order_params['stop_loss'] = {'stop_price': stop_loss}\n\n")
+
+
+    f.write("            order = self.api.submit_order(**order_params)\n")
+    f.write("            logging.info(f'Placed {order_type} order for {quantity} shares of {symbol}. Order ID: {order.id}')\n")
+    f.write("            return order.id\n")
+    f.write("        except Exception as e:\n")
+    f.write("            logging.error(f'Error placing order for {symbol}: {e}')\n")
+    f.write("            return None\n\n")
+
+    # 8. Implement modify_order method
+    f.write("    def modify_order(self, order_id: str, new_quantity: float = None, new_price: float = None, new_stop_loss: float = None, new_take_profit: float = None):\n")
+    f.write("        try:\n")
+    f.write("            update_params = {}\n")
+    f.write("            if new_quantity is not None: update_params['qty'] = new_quantity\n")
+    f.write("            if new_price is not None: update_params['limit_price'] = new_price # Assuming modifying a limit order's price\n")
+    f.write("            if new_stop_loss is not None: update_params['stop_loss_price'] = new_stop_loss\n")
+    f.write("            if new_take_profit is not None: update_params['take_profit_price'] = new_take_profit\n")
+
+    f.write("            if not update_params:\n")
+    f.write("                logging.warning(f'No valid parameters provided to modify order {order_id}.')\n")
+    f.write("                return False\n")
+
+    f.write("            # Alpaca modify order requires order ID and one or more parameters\n")
+    f.write("            self.api.replace_order(order_id, **update_params)\n")
+    f.write("            logging.info(f'Modified order {order_id} with updates: {update_params}')\n")
+    f.write("            return True\n")
+    f.write("        except Exception as e:\n")
+    f.write("            logging.error(f'Error modifying order {order_id}: {e}')\n")
+    f.write("            return False\n\n")
+
+    # 9. Implement cancel_order method
+    f.write("    def cancel_order(self, order_id: str):\n")
+    f.write("        try:\n")
+    f.write("            self.api.cancel_order(order_id)\n")
+    f.write("            logging.info(f'Cancelled order {order_id}.')\n")
+    f.write("            return True\n")
+    f.write("        except Exception as e:\n")
+    f.write("            logging.error(f'Error cancelling order {order_id}: {e}')\n")
+    f.write("            return False\n\n")
+
+    # 10. Implement get_account_balance method
+    f.write("    def get_account_balance(self) -> float:\n")
+    f.write("        try:\n")
+    f.write("            account = self.api.get_account()\n")
+    f.write("            balance = float(account.equity)\n")
+    f.write("            logging.info(f'Fetched account balance: {balance:.2f}')\n")
+    f.write("            return balance\n")
+    f.write("        except Exception as e:\n")
+    f.write("            logging.error(f'Error fetching account balance: {e}')\n")
+    f.write("            return 0.0\n\n")
+
+    # 11. Implement get_open_positions method
+    f.write("    def get_open_positions(self) -> pd.DataFrame:\n")
+    f.write("        try:\n")
+    f.write("            positions = self.api.list_positions()\n")
+    f.write("            if not positions:\n")
+    f.write("                logging.info('No open positions found.')\n")
+    f.write("                return pd.DataFrame()\n")
+
+    f.write("            # Convert list of Position objects to DataFrame\n")
+    f.write("            positions_data = []\n")
+    f.write("            for pos in positions:\n")
+    f.write("                positions_data.append({\n")
+    f.write("                    'symbol': pos.symbol,\n")
+    f.write("                    'quantity': float(pos.qty),\n")
+    f.write("                    'side': pos.side,\n")
+    f.write("                    'avg_entry_price': float(pos.avg_entry_price),\n")
+    f.write("                    'market_value': float(pos.market_value),\n")
+    f.write("                    'unrealized_pl': float(pos.unrealized_pl),\n")
+    f.write("                    'unrealized_plpc': float(pos.unrealized_plpc)\n")
+    f.write("                })\n")
+
+    f.write("            df = pd.DataFrame(positions_data)\n")
+    f.write("            logging.info(f'Fetched {len(positions)} open positions.')\n")
+    f.write("            return df\n")
+    f.write("        except Exception as e:\n")
+    f.write("            logging.error(f'Error fetching open positions: {e}')\n")
+    f.write("            return pd.DataFrame()\n")
+
+print(f"Created {alpaca_executor_path}")
