@@ -1,0 +1,11 @@
+oanda_fetcher_path = os.path.join(data_fetching_dir, "oanda_data_fetcher.py")
+with open(oanda_fetcher_path, "w") as f:
+    f.write("import pandas as pd\n")
+    f.write("from .base_data_fetcher import BaseDataFetcher\n\n")
+    f.write("class OandaDataFetcher(BaseDataFetcher):\n")
+    f.write("    def fetch_historical_data(self, symbol: str, timeframe: str, start_date: str, end_date: str) -> pd.DataFrame:\n")
+    f.write("        print('OANDA historical data fetching not implemented yet.')\n")
+    f.write("        return pd.DataFrame()\n\n")
+    f.write("    def fetch_realtime_data(self, symbol: str):\n")
+    f.write("        print('OANDA real-time data fetching not implemented yet.')\n")
+    f.write("        pass\n")
