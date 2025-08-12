@@ -1,0 +1,3 @@
+requirements_path = os.path.join(project_name, "requirements.txt")
+with open(requirements_path, "a") as f:
+    f.write("alpaca-trade-api\n")
