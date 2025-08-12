@@ -1,0 +1,11 @@
+# 13. Update requirements.txt - Need to add libraries for other brokers if not already there.
+# Assuming we might need libraries for IB, Binance, OANDA in the future.
+# For now, we'll add a placeholder comment to remind us.
+requirements_path = os.path.join(project_name, "requirements.txt")
+with open(requirements_path, "a") as f:
+    f.write("\n# Add specific libraries for Interactive Brokers, Binance, OANDA here when implementing their executors.\n")
+    # Example: f.write("ibapi\n")
+    # Example: f.write("python-binance\n")
+    # Example: f.write("oandapyV20\n")
+
+print("Updated requirements.txt with placeholders for other broker libraries.")
