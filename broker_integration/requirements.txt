@@ -1,0 +1,7 @@
+requirements_path = os.path.join(project_name, "requirements.txt")
+with open(requirements_path, "a") as f:
+    f.write("\nibapi\n") # Interactive Brokers library
+    f.write("python-binance\n") # Binance library
+    f.write("oandapyV20\n") # OANDA library
+
+print("Updated requirements.txt with specific broker libraries.")
